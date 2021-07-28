@@ -1,4 +1,5 @@
-process.setMaxListeners(0)
+process.setMaxListeners(0);
+require("dotenv").config();
 const Discord = require("discord.js");
 const ms = require("ms");
 const { parse } = require('twemoji-parser');
