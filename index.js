@@ -24,8 +24,8 @@ client.on("ready", async () => {
 })
 
 try {
-  let file = fs.readFileSync("/home/runner/BanderitaXBot/info.js");
-  fs.writeFileSync("/home/runner/BanderitaXBot/node_modules/ytdl-core/lib/info.js", file);
+  let file = fs.readFileSync(__dirname + "/info.js");
+  fs.writeFileSync(__dirname + "node_modules/ytdl-core/lib/info.js", file);
 } catch (error) {
   console.log(error);
 }
