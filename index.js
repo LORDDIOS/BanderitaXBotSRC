@@ -1,5 +1,4 @@
 process.setMaxListeners(0)
-require("dotenv").config();
 const Discord = require("discord.js");
 const ms = require("ms");
 const { parse } = require('twemoji-parser');
@@ -22,6 +21,14 @@ client.on("ready", async () => {
   })
   console.log("the client is ready!");
 })
+
+try {
+  let file = fs.readFileSync("/home/runner/BanderitaXBot/info.js");
+  fs.writeFileSync("/home/runner/BanderitaXBot/node_modules/ytdl-core/lib/info.js", file);
+} catch (error) {
+  console.log(error);
+}
+
 
 client.on("message", async message => {
   if (message.channel.type === "dm") return
@@ -1372,12 +1379,10 @@ client.on("message", async message => {
 
     let oldEmbed = message.embeds[0];
     if (oldEmbed) {
-      if (oldEmbed.description === `**قصص المتابعين :
+      if (oldEmbed.description === `**عندك قصه حلوه تحكيها لبندر؟
+جيت للمكان المناسب
 
-> عندك قصه حلوه تحكيها لبندر؟
-> جيت للمكان المناسب
-
-التخريب في هذا الروم أو التأليف والكذب في القصص قد يعرضك لعقوبات أو حذف مشاركتك**`) return;
+يرجى  كتابة القصة بصيغة مفهومة وبدون اخطاء املائية او قد تتعرض قصتك للحذف كما ان الاستهزاء قد يعرضك للحظر من السيرفر.**`) return;
     }
 
     const data = await stickyTempModel.findOne({
@@ -1401,12 +1406,11 @@ client.on("message", async message => {
     }
 
     let stickyEmbed = new Discord.MessageEmbed()
-      .setDescription(`**قصص المتابعين :
+      .setDescription(`**عندك قصه حلوه تحكيها لبندر؟
+جيت للمكان المناسب
 
-> عندك قصه حلوه تحكيها لبندر؟
-> جيت للمكان المناسب
-
-التخريب في هذا الروم أو التأليف والكذب في القصص قد يعرضك لعقوبات أو حذف مشاركتك**`)
+يرجى  كتابة القصة بصيغة مفهومة وبدون اخطاء املائية او قد تتعرض قصتك للحذف كما ان الاستهزاء قد يعرضك للحظر من السيرفر.**`)
+      .setTitle("**__قصص المتابعين__**")
       .setThumbnail(message.guild.iconURL({
         format: "png",
         size: 4096,
@@ -1909,6 +1913,78 @@ client.on("message", async message => {
   }
 })
 
+client.on("message", async message => {
+  if (message.channel.type === "dm") return
+  var prefix = db.get(`po_${message.guild.id}`);
+  if (prefix === null) prefix = pp;
+
+  var color = db.get(`co_${message.guild.id}`);
+  if (color === null) color = cc;
+  if (message.channel.id === "866556565312765952") {
+
+    let oldEmbed = message.embeds[0];
+    if (oldEmbed) {
+      if (oldEmbed.description === `> **عندك نكتة تقولها لبندر؟**
+> **اكتبها هنا وتأكد من عدم وجود هاذي الاشياء فالنكتة**
+
+> **العنصرية - استهزاء بالدين - الفاظ غير مناسبة**
+
+> **يرجى مراعاة قوانين الروم واستخدامه الصحيح او قد تتعرض للعقوبات او حذف رسالتك**`) return;
+    }
+
+    const data = await stickyTempModel.findOne({
+      ChannelID: message.channel.id
+    });
+    if (data) {
+      const lastStickyID = data.lastStickyID;
+      await stickyTempModel.findOneAndRemove({
+        ChannelID: message.channel.id
+      });
+      try {
+        let last = await message.channel.messages.fetch(
+          lastStickyID,
+          false,
+          true
+        );
+        last.delete();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    let stickyEmbed = new Discord.MessageEmbed()
+      .setDescription(`> **عندك نكتة تقولها لبندر؟**
+> **اكتبها هنا وتأكد من عدم وجود هاذي الاشياء فالنكتة**
+
+> **العنصرية - استهزاء بالدين - الفاظ غير مناسبة**
+
+> **يرجى مراعاة قوانين الروم واستخدامه الصحيح او قد تتعرض للعقوبات او حذف رسالتك**`)
+      .setTitle("**__نكت المتابعين__**")
+      .setThumbnail(message.guild.iconURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setColor(color);
+
+    let sent = await message.channel.send(stickyEmbed);
+
+    let newData = new stickyTempModel({
+      lastStickyID: sent.id,
+      ChannelID: message.channel.id,
+      GuildID: message.guild.id
+    });
+    let test = await stickyTempModel.findOne({
+      ChannelID: message.channel.id
+    });
+
+    if (!test) {
+      newData.save();
+    } else {
+      sent.delete();
+    }
+  }
+})
 
 client.on("message", async message => {
   if (message.channel.type === "dm") return
@@ -1944,11 +2020,44 @@ client.on("message", async msg => {
   if (color === null) color = cc;
   if (msg.channel.id === "838128771490906122") {
     if (msg.author.bot) return
-    if (msg.content.includes("https://") || msg.content.includes("discord.gg/") || msg.content.includes("ضرطاتي") || msg.content.includes("طقعة") || msg.content.includes("طقعه") || msg.content.includes("زق") || msg.content.includes("زقيت") || msg.content.includes("طقعت") || msg.content.includes("طقعتي") || msg.content.includes("طقوعه") || msg.content.includes("طقوعة") || msg.content.includes("خرا") || msg.content.includes("طقع") || msg.content.includes("طقعو") || msg.content.includes("طقعات") || msg.content.includes("ابول") || msg.content.includes("بول") || msg.content.includes("شخيت") || msg.content.includes("شخة") || msg.content.includes("شخه") || msg.content.includes("زقة") || msg.content.includes("زقه") || msg.content.includes("ز.") || msg.content.includes("اطكع") || msg.content.includes("طكعة") || msg.content.includes("طكعت") || msg.content.includes("ضرطه") || msg.content.includes("ضرطة") || msg.content.includes("ضرطت") || msg.content.includes("ضرطات") || msg.content.includes("ضرطتي") || msg.content.includes("ضروطة") || msg.content.includes("💩") || msg.content.includes(":poop:") || msg.content.includes("لايك") || msg.content.includes("اشتراك") || msg.content.includes("جرس") || msg.content.includes("الجرس") || msg.content.includes("التنبيهات") || msg.content.includes("متابعين") || msg.content.includes("تابعني") || msg.content.includes("قناتي") || msg.content.includes("فاتح المايك") || msg.content.includes("كورونا") || msg.content.includes("فيديو") || msg.content.includes("مقطع") || msg.content.includes("ابوفله") || msg.content.includes("ابوفلة") || msg.content.includes("ابو فله") || msg.content.includes("ابو فلة") || msg.content.includes("بالروضة") || msg.content.includes("الروضة") || msg.content.includes("الابتدائي") || msg.content.includes("الابتدائية") || msg.content.includes("العن") || msg.content.includes("يلعن") || msg.content.includes("تبن") || msg.content.includes("حسران") || msg.content.includes("حشران") || msg.content.includes("تدخن") || msg.content.includes("يدخن") || msg.content.includes("المتوسط") || msg.content.includes("متوسط") || msg.content.includes("بندرتينة") || msg.content.includes("بندرتينا") || msg.content.includes("محتواك") || msg.content.includes("قناتك") || msg.content.includes(":peach:") || msg.content.includes(":eggplant:") || msg.content.includes("🍆") || msg.content.includes("🍑") || msg.content.includes("مشمشة") || msg.content.includes("مشمش") || msg.content.includes("فالمقطع") || msg.content.includes("نسب") || msg.content.includes("اسب") || msg.content.includes("هاي") || msg.content.includes("قصتين") || msg.content.includes("اليك") || msg.content.includes("العن") || msg.content.includes("كس") || msg.content.includes("زق") || msg.content.includes("http://") || msg.content.includes("زغلت") || msg.content.includes("زغل")) return msg.delete()
+    if (msg.content.includes("https://") || msg.content.includes("discord.gg/") || msg.content.includes("ضرطاتي") || msg.content.includes("طقعة") || msg.content.includes("طقعه") || msg.content.includes("زق") || msg.content.includes("زقيت") || msg.content.includes("طقعت") || msg.content.includes("طقعتي") || msg.content.includes("طقوعه") || msg.content.includes("طقوعة") || msg.content.includes("خرا") || msg.content.includes("طقع") || msg.content.includes("طقعو") || msg.content.includes("طقعات") || msg.content.includes("ابول") || msg.content.includes("بول") || msg.content.includes("شخيت") || msg.content.includes("شخة") || msg.content.includes("شخه") || msg.content.includes("زقة") || msg.content.includes("زقه") || msg.content.includes("ز.") || msg.content.includes("اطكع") || msg.content.includes("طكعة") || msg.content.includes("طكعت") || msg.content.includes("ضرطه") || msg.content.includes("ضرطة") || msg.content.includes("ضرطت") || msg.content.includes("ضرطات") || msg.content.includes("ضرطتي") || msg.content.includes("ضروطة") || msg.content.includes("💩") || msg.content.includes(":poop:") || msg.content.includes("جرس") || msg.content.includes("متابعين") || msg.content.includes("تابعني") || msg.content.includes("قناتي") || msg.content.includes("كورونا") || msg.content.includes("فيديو") || msg.content.includes("مقطع") || msg.content.includes("ابوفله") || msg.content.includes("ابوفلة") || msg.content.includes("ابو فله") || msg.content.includes("ابو فلة") || msg.content.includes("بالروضة") || msg.content.includes("الروضة") || msg.content.includes("الابتدائية") || msg.content.includes("العن") || msg.content.includes("يلعن") || msg.content.includes("تبن") || msg.content.includes("حسران") || msg.content.includes("حشران") || msg.content.includes("متوسط") || msg.content.includes("بندرتينة") || msg.content.includes("بندرتينا") || msg.content.includes("محتواك") || msg.content.includes("قناتك") || msg.content.includes(":peach:") || msg.content.includes(":eggplant:") || msg.content.includes("🍆") || msg.content.includes("🍑") || msg.content.includes("مشمشة") || msg.content.includes("مشمش") || msg.content.includes("فالمقطع") || msg.content.includes("نسب") || msg.content.includes("اسب") || msg.content.includes("اليك") || msg.content.includes("العن") || msg.content.includes("كس") || msg.content.includes("زق") || msg.content.includes("http://") || msg.content.includes("زغلت") || msg.content.includes("زغل")) return msg.delete()
     if (msg.content.length < 40) return msg.delete()
     msg.delete()
     let embed = new Discord.MessageEmbed()
       .setAuthor("قصة من : " + msg.author.tag, msg.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setFooter(msg.author.id)
+      .setDescription(`> ${msg.content.split("\n").join("\n> ")}`)
+      .setThumbnail(msg.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    msg.channel.send(embed).then(() => {
+      msg.channel.send({ files: [line] })
+    })
+  }
+})
+
+client.on("message", async msg => {
+  if (msg.channel.type === "dm") return
+  var prefix = db.get(`po_${msg.guild.id}`);
+  if (prefix === null) prefix = pp;
+
+  var color = db.get(`co_${msg.guild.id}`);
+  if (color === null) color = cc;
+  if (msg.channel.id === "866556565312765952") {
+    if (msg.author.bot) return
+    if (msg.content.includes("https://") || msg.content.includes("discord.gg/") || msg.content.includes("ضرطاتي") || msg.content.includes("طقعة") || msg.content.includes("طقعه") || msg.content.includes("زق") || msg.content.includes("زقيت") || msg.content.includes("طقعت") || msg.content.includes("طقعتي") || msg.content.includes("طقوعه") || msg.content.includes("طقوعة") || msg.content.includes("خرا") || msg.content.includes("طقع") || msg.content.includes("طقعو") || msg.content.includes("طقعات") || msg.content.includes("ابول") || msg.content.includes("بول") || msg.content.includes("شخيت") || msg.content.includes("شخة") || msg.content.includes("شخه") || msg.content.includes("زقة") || msg.content.includes("زقه") || msg.content.includes("ز.") || msg.content.includes("اطكع") || msg.content.includes("طكعة") || msg.content.includes("طكعت") || msg.content.includes("ضرطه") || msg.content.includes("ضرطة") || msg.content.includes("ضرطت") || msg.content.includes("ضرطات") || msg.content.includes("ضرطتي") || msg.content.includes("ضروطة") || msg.content.includes("💩") || msg.content.includes(":poop:") || msg.content.includes("جرس") || msg.content.includes("متابعين") || msg.content.includes("تابعني") || msg.content.includes("قناتي") || msg.content.includes("كورونا") || msg.content.includes("فيديو") || msg.content.includes("مقطع") || msg.content.includes("ابوفله") || msg.content.includes("ابوفلة") || msg.content.includes("ابو فله") || msg.content.includes("ابو فلة") || msg.content.includes("بالروضة") || msg.content.includes("الروضة") || msg.content.includes("الابتدائية") || msg.content.includes("العن") || msg.content.includes("يلعن") || msg.content.includes("تبن") || msg.content.includes("حسران") || msg.content.includes("حشران") || msg.content.includes("متوسط") || msg.content.includes("بندرتينة") || msg.content.includes("بندرتينا") || msg.content.includes("محتواك") || msg.content.includes("قناتك") || msg.content.includes(":peach:") || msg.content.includes(":eggplant:") || msg.content.includes("🍆") || msg.content.includes("🍑") || msg.content.includes("مشمشة") || msg.content.includes("مشمش") || msg.content.includes("فالمقطع") || msg.content.includes("نسب") || msg.content.includes("اسب") || msg.content.includes("اليك") || msg.content.includes("العن") || msg.content.includes("كس") || msg.content.includes("زق") || msg.content.includes("http://") || msg.content.includes("زغلت") || msg.content.includes("زغل") || msg.content.includes("knife") || msg.content.includes("cs: go") || msg.content.includes("cs:go")) return msg.delete()
+    if (msg.content.length < 5) return msg.delete()
+    msg.delete()
+    let embed = new Discord.MessageEmbed()
+      .setAuthor("نكتة من : " + msg.author.tag, msg.author.displayAvatarURL({
         format: "png",
         size: 4096,
         dynamic: true
@@ -2050,8 +2159,9 @@ client.on("message", async msg => {
 
 client.on("message", async msg => {
   if (msg.channel.id === "838930490873348106") {
+    if(msg.member.hasPermission("ADMINISTRATOR")) return
     if (msg.author.bot) return
-    if (!msg.attachments.first()) return
+    if (!msg.attachments.first()) return msg.delete()
     msg.react('<:Like_BNX:857678552840536065>').then(() => {
       msg.channel.send({ files: [line] })
     })
@@ -2192,5 +2302,2050 @@ client.on("message", async msg => {
     msg.channel.send(embed)
   }
 })
+const Discord2 = require("discord.js")
+const client2 = new Discord2.Client()
+const DisTube = require("distube")
+const prefix2 = '1'
+client2.on('ready', () => {
+  console.log(`${client2.user.tag} is ready`)
+  client2.user.setActivity("BanderitaX", {
+    type: "STREAMING",
+    url: "https://www.twitch.tv/banderitax"
+  })
+})
+// Music Data
+const distube = new DisTube(client2, {
+  searchSongs: false,
+  emitNewSongOnly: true
+});
+// Music Data
 
+// Music Cmds
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "file") {
+    const att = message.attachments.first()
+    if (!att) return message.reply(`**❌ Error Please Put The Attachment**`)
+    let bed = new Discord2.MessageEmbed()
+      .setTitle("**" + att.name + "**")
+      .setURL(att.url)
+      .addField("**Played By :**", `**${message.author}**`)
+      .setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    distube.play(message, att.url)
+    message.channel.send(bed)
+    client2.channels.cache.get("854265212499394560").send(bed)
+  }
+})
+
+client2.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "play") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+
+    let music = message.content.split(' ').slice(1).join(' ')
+    if (!music) return message.reply(`**❌ Error Please Put The Music Name**`)
+    distube.play(message, music);
+  }
+});
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "stop") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      distube.stop(message)
+      message.channel.send(`**🎵 The Music Has Been Stopped And The Queue Has Been Cleared**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+
+  if (message.content === prefix2 + "skip") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      distube.skip(message)
+      message.channel.send(`**🎵 The Music Has Been Skipped**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client2.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "repeat" || command === "loop") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      let mode = distube.setRepeatMode(message, parseInt(args[0]));
+      mode = mode ? mode == 2 ? "Repeat Queue" : "Repeat Song" : "OFF";
+      message.channel.send(`🎵 The Repeat Mode Has Been Set To **\`${mode}\`**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "volume" || command === "vol") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      const stats = `${que.volume}%`
+      let vol = message.content.split(' ').slice(1)
+      if (!vol[0]) return message.reply(`**🎵 The Music Volume is \`${stats}\`**`)
+      if (parseInt(vol[0]) < 0 || parseInt(vol[0]) > 100) return message.reply(`**❌ Error You Can't Put Number Lower Than \`0\` Or More Than \`100\`**`)
+      if (isNaN(vol[0])) return message.reply(`**❌ Error Invalid Number**`)
+      distube.setVolume(message, vol)
+      message.channel.send(`**🎵 The Music Volume Has Been Set To \`${vol[0]}%\`**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+
+const { toColonNotation, toMilliseconds } = require('colon-notation');
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "seek") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      let sek = message.content.split(' ').slice(1)
+      if (!sek[0]) return message.reply(`**❌ Error Please Put a Number**`)
+      distube.seek(message, Number(toMilliseconds(sek[0])))
+      message.channel.send(`**🎵 The Music Has Been Seeked To \`${sek[0]}\`**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+const progressbar = require("string-progressbar")
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  if (message.content.toLowerCase().startsWith(prefix2 + "nowplaying") || message.content.toLowerCase().startsWith(prefix2 + "np")) {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    const que = await distube.getQueue(message)
+    if (que) {
+      let track = que.songs[0]
+      let time = track.duration * 1000
+      const currentTime = que.currentTime;
+      let sng = que.songs[0]
+      var embed = new Discord.MessageEmbed()
+        .setTitle("**" + sng.name + "**")
+        .setURL(sng.url)
+        .addField("**Published By :**", `**[${sng.info.videoDetails.ownerChannelName}](${sng.info.videoDetails.ownerProfileUrl})**`)
+        .addField("**Views :**", `**${sng.views}**`)
+        .addField("**Duration :**", `**[${progressbar.splitBar(time === 0 ? currentTime : time, currentTime, 10)[0]}]\n\`[${que.formattedCurrentTime}/${track.formattedDuration}]\`**`)
+        .addField("**Played By :**", `**${sng.user}**`)
+        .setImage(`${sng.thumbnail}`)
+        .setFooter(`👍 ${sng.likes} | 👎 ${sng.dislikes}`, sng.user.avatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        }))
+        .setTimestamp()
+        .setColor(color)
+      message.channel.send(embed)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "pause") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      distube.pause(message)
+      message.channel.send(`**🎵 The Music Has Been Paused**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "resume") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      distube.resume(message)
+      message.channel.send(`**🎵 The Music Has Been Resumed**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "shuffle") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      distube.shuffle(message)
+      message.channel.send(`**🎵 The Music Has Been Shuffled**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client2.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  let que = await distube.getQueue(message)
+  if (!message.content.startsWith(prefix2)) return;
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift();
+  if ([`3d`, `bassboost`, `echo`, `karaoke`, `nightcore`, `vaporwave`, `flanger`, `gate`, `haas`, `reverse`, `surround`, `mcompand`, `phaser`, `tremolo`, `earwax`].includes(command)) {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    if (que) {
+      let filter = distube.setFilter(message, command);
+      message.channel.send(`🎵 Music Filter Has Been Set To **\`${(filter || "OFF")}\`**`);
+    } else if (!que) {
+      message.channel.send(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+
+client2.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  if (!message.content.startsWith(prefix2)) return;
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift();
+  if (command == "queue") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let qu = await distube.getQueue(message)
+    if (qu) {
+      let queue = distube.getQueue(message);
+      message.channel.send(new Discord2.MessageEmbed().setDescription(`**${queue.songs.map((song, id) =>
+        `${id + 1} - [${song.name}](${song.url}) - \`${song.formattedDuration}\``
+      ).join("\n")}**`).setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      })).setTitle("🎵 Queue List").setThumbnail(message.guild.iconURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      })).setTimestamp().setColor(color));
+    } else if (!qu) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+    }
+  }
+});
+
+client2.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  if (!message.content.startsWith(prefix2)) return;
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (command == "skipto") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      let skipnum = message.content.split(' ').slice(1)
+      if (!skipnum[0]) return message.reply(`**❌ Error Please Put The Music Number**`)
+      distube.jump(message, parseInt(skipnum[0]))
+        .catch(err => {
+          return message.reply(`**❌ Error Invalid Music Number**`)
+        });
+      message.channel.send(`**🎵 The Music Has Been Skipped**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+    }
+  }
+});
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "disconnect" || command === "dc") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const me = message.guild.me.voice.channel
+    const channel = message.member.voice.channel
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    if (message.guild.me.voice.channel) {
+      message.guild.me.voice.channel.leave()
+      message.react("👋")
+    }
+  }
+})
+
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "join") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const me = message.guild.me.voice.channel
+    const channel = message.member.voice.channel
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    message.member.voice.channel.join()
+    message.react("👋")
+  }
+})
+
+client2.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  var prefix = db.fetch(`po_${message.guild.id}`)
+  if (prefix === null) prefix = pp;
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix2) !== 0) return;
+  if (command === "replay") {
+    const que = await distube.getQueue(message)
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    if (que) {
+      distube.stop(message)
+      distube.play(message, que.songs[0].url);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+
+client2.on("message", message => {
+  if (message.channel.type === "dm") return;
+  if (!message.content.startsWith(prefix2)) return;
+  const args = message.content.slice(prefix2.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (command == "youtube") {
+    let channel = message.member.voice.channel;
+    if (!channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    fetch(`https://discord.com/api/v8/channels/${channel.id}/invites`, {
+      method: "POST",
+      body: JSON.stringify({
+        max_age: 86400,
+        max_uses: 0,
+        target_application_id: "755600276941176913",
+        target_type: 2,
+        temporary: false,
+        validate: null
+      }),
+      headers: {
+        "Authorization": `Bot ${client2.token}`,
+        "Content-Type": "application/json"
+      }
+    }).then(res => res.json())
+      .then(invite => {
+        if (!invite.code) return message.reply(`**❌ Error I Can't Start YouTube Together**`)
+        message.channel.send(`**✅ Done Click On The Link To Start YouTube Together\nhttps://discord.com/invite/${invite.code}**`)
+      })
+  };
+});
+
+const lyricsFinder = require('lyrics-finder');
+client2.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix) !== 0) return;
+  if (command === "lyrics") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    let que = await distube.getQueue(message)
+    if (que) {
+      (async function(artist, title) {
+        let lyrics = await lyricsFinder(artist, title) || "Not Found!";
+        message.channel.send(new Discord.MessageEmbed().setAuthor(client.user.tag, client.user.displayAvatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        })).setTitle(`**${que.songs[0].name} Lyrics**`).setDescription(lyrics).setColor(color).setFooter("Requested By " + message.author.tag, message.author.displayAvatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        }))).catch(error => {
+          message.channel.send(`**❌ Error The Song Characters More Than 200**`)
+          console.log(error)
+        });
+      })(que.songs[0].name, '');
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+// Music Cmds
+
+// Music Src
+distube
+  .on("playSong", async (message, queue, song) => {
+    var embed = new Discord2.MessageEmbed()
+      .setTitle("**" + song.name + "**")
+      .setURL(song.url)
+      .addField("**Published By :**", `**[${song.info.videoDetails.ownerChannelName}](${song.info.videoDetails.ownerProfileUrl})**`)
+      .addField("**Views :**", `**${song.views}**`)
+      .addField("**Duration :**", `**${song.formattedDuration}**`)
+      .addField("**Played By :**", `**${song.user}**`)
+      .setImage(`${song.thumbnail}`)
+      .setFooter(`👍 ${song.likes} | 👎 ${song.dislikes}`, song.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client2.channels.cache.get("854265212499394560").send(embed)
+  })
+  .on("addSong", async (message, queue, song) => {
+    var embed = new Discord2.MessageEmbed()
+      .setTitle("**" + song.name + "**")
+      .setURL(song.url)
+      .addField("**Published By :**", `**[${song.info.videoDetails.ownerChannelName}](${song.info.videoDetails.ownerProfileUrl})**`)
+      .addField("**Views :**", `**${song.views}**`)
+      .addField("**Duration :**", `**${song.formattedDuration}**`)
+      .addField("**Added By :**", `**${song.user}**`)
+      .setImage(`${song.thumbnail}`)
+      .setFooter(`👍 ${song.likes} | 👎 ${song.dislikes}`, song.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client2.channels.cache.get("854265212499394560").send(embed)
+  })
+
+  .on("playList", async (message, queue, playlist, song) => {
+    var embed = new Discord2.MessageEmbed()
+      .setTitle("**" + playlist.name + "**")
+      .setURL(playlist.url)
+      .addField("**Music Count :**", `**${playlist.songs.length}**`)
+      .addField("**Played By :**", `**${playlist.user}**`)
+      .setImage(`${playlist.thumbnail.url}`)
+      .setFooter(playlist.user.tag, playlist.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client2.channels.cache.get("854265212499394560").send(embed)
+
+  })
+
+  .on("addList", async (message, queue, playlist) => {
+    var embed = new Discord2.MessageEmbed()
+      .setTitle("**" + playlist.name + "**")
+      .setURL(playlist.url)
+      .addField("**Music Count :**", `**${playlist.songs.length}**`)
+      .addField("**Added By :**", `**${playlist.user}**`)
+      .setImage(`${playlist.thumbnail.url}`)
+      .setFooter(playlist.user.tag, playlist.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client2.channels.cache.get("854265212499394560").send(embed)
+
+  })
+  .on("searchResult", async (message, result) => {
+    var color = db.get(`co_${message.guild.id}`);
+    if (color === null) color = cc;
+    let i = 0;
+    message.channel.send(new Discord2.MessageEmbed().setTitle(`**🎵 Please Put a Number**`).setDescription(`**${result.map(song => `${++i} - [${song.name}](${song.url}) - \`${song.formattedDuration}\``).join("\n")}**`).setColor(color).setThumbnail(message.guild.iconURL({
+      format: "png",
+      size: 4096,
+      dynamic: true
+    })).setFooter(`You Have 60s To Put a Number`, message.author.displayAvatarURL({
+      format: "png",
+      size: 4096,
+      dynamic: true
+    })).setTimestamp());
+  })
+  .on("searchCancel", (message) => message.channel.send(`**❗ Searching Has Been Stop**`))
+  .on("error", (message, e) => {
+    console.error(e)
+  })
+  .on("initQueue", queue => {
+    queue.autoplay = false;
+    queue.volume = 100;
+  });
+// Music Src
+
+
+
+const Discord3 = require("discord.js")
+const client3 = new Discord3.Client()
+const DisTube3 = require("distube")
+const prefix3 = '2'
+client3.on('ready', () => {
+  console.log(`${client3.user.tag} is ready`)
+  client3.user.setActivity("BanderitaX", {
+    type: "STREAMING",
+    url: "https://www.twitch.tv/banderitax"
+  })
+})
+// Music Data
+const distube3 = new DisTube3(client3, {
+  searchSongs: false,
+  emitNewSongOnly: true
+});
+// Music Data
+
+// Music Cmds
+
+client3.on("message", message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "file") {
+    const att = message.attachments.first()
+    if (!att) return message.reply(`**❌ Error Please Put The Attachment**`)
+    let bed = new Discord3.MessageEmbed()
+      .setTitle("**" + att.name + "**")
+      .setURL(att.url)
+      .addField("**Played By :**", `**${message.author}**`)
+      .setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    distube3.play(message, att.url)
+    message.channel.send(bed)
+    client3.channels.cache.get("854265212499394560").send(bed)
+  }
+})
+
+client3.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "play") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+
+    let music = message.content.split(' ').slice(1).join(' ')
+    if (!music) return message.reply(`**❌ Error Please Put The Music Name**`)
+    distube3.play(message, music);
+  }
+});
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "stop") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      distube3.stop(message)
+      message.channel.send(`**🎵 The Music Has Been Stopped And The Queue Has Been Cleared**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+
+  if (message.content === prefix3 + "skip") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      distube3.skip(message)
+      message.channel.send(`**🎵 The Music Has Been Skipped**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client3.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "repeat" || command === "loop") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      let mode = distube3.setRepeatMode(message, parseInt(args[0]));
+      mode = mode ? mode == 2 ? "Repeat Queue" : "Repeat Song" : "OFF";
+      message.channel.send(`🎵 The Repeat Mode Has Been Set To **\`${mode}\`**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "volume" || command === "vol") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      const stats = `${que.volume}%`
+      let vol = message.content.split(' ').slice(1)
+      if (!vol[0]) return message.reply(`**🎵 The Music Volume is \`${stats}\`**`)
+      if (parseInt(vol[0]) < 0 || parseInt(vol[0]) > 100) return message.reply(`**❌ Error You Can't Put Number Lower Than \`0\` Or More Than \`100\`**`)
+      if (isNaN(vol[0])) return message.reply(`**❌ Error Invalid Number**`)
+      distube3.setVolume(message, vol)
+      message.channel.send(`**🎵 The Music Volume Has Been Set To \`${vol[0]}%\`**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "seek") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      let sek = message.content.split(' ').slice(1)
+      if (!sek[0]) return message.reply(`**❌ Error Please Put a Number**`)
+      distube3.seek(message, Number(toMilliseconds(sek[0])))
+      message.channel.send(`**🎵 The Music Has Been Seeked To \`${sek[0]}\`**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  if (message.content.toLowerCase().startsWith(prefix3 + "nowplaying") || message.content.toLowerCase().startsWith(prefix3 + "np")) {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    const que = await distube3.getQueue(message)
+    if (que) {
+      let track = que.songs[0]
+      let time = track.duration * 1000
+      const currentTime = que.currentTime;
+      let sng = que.songs[0]
+      var embed = new Discord.MessageEmbed()
+        .setTitle("**" + sng.name + "**")
+        .setURL(sng.url)
+        .addField("**Published By :**", `**[${sng.info.videoDetails.ownerChannelName}](${sng.info.videoDetails.ownerProfileUrl})**`)
+        .addField("**Views :**", `**${sng.views}**`)
+        .addField("**Duration :**", `**[${progressbar.splitBar(time === 0 ? currentTime : time, currentTime, 10)[0]}]\n\`[${que.formattedCurrentTime}/${track.formattedDuration}]\`**`)
+        .addField("**Played By :**", `**${sng.user}**`)
+        .setImage(`${sng.thumbnail}`)
+        .setFooter(`👍 ${sng.likes} | 👎 ${sng.dislikes}`, sng.user.avatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        }))
+        .setTimestamp()
+        .setColor(color)
+      message.channel.send(embed)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "pause") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      distube3.pause(message)
+      message.channel.send(`**🎵 The Music Has Been Paused**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "resume") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      distube3.resume(message)
+      message.channel.send(`**🎵 The Music Has Been Resumed**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "shuffle") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      distube3.shuffle(message)
+      message.channel.send(`**🎵 The Music Has Been Shuffled**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client3.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  let que = await distube3.getQueue(message)
+  if (!message.content.startsWith(prefix3)) return;
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift();
+  if ([`3d`, `bassboost`, `echo`, `karaoke`, `nightcore`, `vaporwave`, `flanger`, `gate`, `haas`, `reverse`, `surround`, `mcompand`, `phaser`, `tremolo`, `earwax`].includes(command)) {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    if (que) {
+      let filter = distube3.setFilter(message, command);
+      message.channel.send(`🎵 Music Filter Has Been Set To **\`${(filter || "OFF")}\`**`);
+    } else if (!que) {
+      message.channel.send(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+
+client3.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  if (!message.content.startsWith(prefix3)) return;
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift();
+  if (command == "queue") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let qu = await distube3.getQueue(message)
+    if (qu) {
+      let queue = distube3.getQueue(message);
+      message.channel.send(new Discord3.MessageEmbed().setDescription(`**${queue.songs.map((song, id) =>
+        `${id + 1} - [${song.name}](${song.url}) - \`${song.formattedDuration}\``
+      ).join("\n")}**`).setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      })).setTitle("🎵 Queue List").setThumbnail(message.guild.iconURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      })).setTimestamp().setColor(color));
+    } else if (!qu) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+    }
+  }
+});
+
+client3.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  if (!message.content.startsWith(prefix3)) return;
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (command == "skipto") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      let skipnum = message.content.split(' ').slice(1)
+      if (!skipnum[0]) return message.reply(`**❌ Error Please Put The Music Number**`)
+      distube3.jump(message, parseInt(skipnum[0]))
+        .catch(err => {
+          return message.reply(`**❌ Error Invalid Music Number**`)
+        });
+      message.channel.send(`**🎵 The Music Has Been Skipped**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+    }
+  }
+});
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "disconnect" || command === "dc") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const me = message.guild.me.voice.channel
+    const channel = message.member.voice.channel
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    if (message.guild.me.voice.channel) {
+      message.guild.me.voice.channel.leave()
+      message.react("👋")
+    }
+  }
+})
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "join") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const me = message.guild.me.voice.channel
+    const channel = message.member.voice.channel
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    message.member.voice.channel.join()
+    message.react("👋")
+  }
+});
+
+client3.on('message', async (message) => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "replay") {
+    const que = await distube3.getQueue(message)
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    if (que) {
+      distube3.stop(message)
+      distube3.play(message, que.songs[0].url);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+
+client3.on("message", message => {
+  if (message.channel.type === "dm") return;
+  if (!message.content.startsWith(prefix3)) return;
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (command == "youtube") {
+    let channel = message.member.voice.channel;
+    if (!channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    fetch(`https://discord.com/api/v8/channels/${channel.id}/invites`, {
+      method: "POST",
+      body: JSON.stringify({
+        max_age: 86400,
+        max_uses: 0,
+        target_application_id: "755600276941176913",
+        target_type: 2,
+        temporary: false,
+        validate: null
+      }),
+      headers: {
+        "Authorization": `Bot ${client3.token}`,
+        "Content-Type": "application/json"
+      }
+    }).then(res => res.json())
+      .then(invite => {
+        if (!invite.code) return message.reply(`**❌ Error I Can't Start YouTube Together**`)
+        message.channel.send(`**✅ Done Click On The Link To Start YouTube Together\nhttps://discord.com/invite/${invite.code}**`)
+      })
+  };
+});
+
+client3.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix3.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix3) !== 0) return;
+  if (command === "lyrics") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    let que = await distube3.getQueue(message)
+    if (que) {
+      (async function(artist, title) {
+        let lyrics = await lyricsFinder(artist, title) || "Not Found!";
+        message.channel.send(new Discord.MessageEmbed().setAuthor(client.user.tag, client.user.displayAvatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        })).setTitle(`**${que.songs[0].name} Lyrics**`).setDescription(lyrics).setColor(color).setFooter("Requested By " + message.author.tag, message.author.displayAvatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        }))).catch(error => {
+          message.channel.send(`**❌ Error The Song Characters More Than 200**`)
+          console.log(error)
+        });
+      })(que.songs[0].name, '');
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+});
+// Music Cmds
+
+// Music Src
+distube3
+  .on("playSong", async (message, queue, song) => {
+    var embed = new Discord3.MessageEmbed()
+      .setTitle("**" + song.name + "**")
+      .setURL(song.url)
+      .addField("**Published By :**", `**[${song.info.videoDetails.ownerChannelName}](${song.info.videoDetails.ownerProfileUrl})**`)
+      .addField("**Views :**", `**${song.views}**`)
+      .addField("**Duration :**", `**${song.formattedDuration}**`)
+      .addField("**Played By :**", `**${song.user}**`)
+      .setImage(`${song.thumbnail}`)
+      .setFooter(`👍 ${song.likes} | 👎 ${song.dislikes}`, song.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client3.channels.cache.get("854265212499394560").send(embed)
+  })
+  .on("addSong", async (message, queue, song) => {
+    var embed = new Discord3.MessageEmbed()
+      .setTitle("**" + song.name + "**")
+      .setURL(song.url)
+      .addField("**Published By :**", `**[${song.info.videoDetails.ownerChannelName}](${song.info.videoDetails.ownerProfileUrl})**`)
+      .addField("**Views :**", `**${song.views}**`)
+      .addField("**Duration :**", `**${song.formattedDuration}**`)
+      .addField("**Added By :**", `**${song.user}**`)
+      .setImage(`${song.thumbnail}`)
+      .setFooter(`👍 ${song.likes} | 👎 ${song.dislikes}`, song.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client3.channels.cache.get("854265212499394560").send(embed)
+  })
+
+  .on("playList", async (message, queue, playlist, song) => {
+    var embed = new Discord3.MessageEmbed()
+      .setTitle("**" + playlist.name + "**")
+      .setURL(playlist.url)
+      .addField("**Music Count :**", `**${playlist.songs.length}**`)
+      .addField("**Played By :**", `**${playlist.user}**`)
+      .setImage(`${playlist.thumbnail.url}`)
+      .setFooter(playlist.user.tag, playlist.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client3.channels.cache.get("854265212499394560").send(embed)
+
+  })
+
+  .on("addList", async (message, queue, playlist) => {
+    var embed = new Discord3.MessageEmbed()
+      .setTitle("**" + playlist.name + "**")
+      .setURL(playlist.url)
+      .addField("**Music Count :**", `**${playlist.songs.length}**`)
+      .addField("**Added By :**", `**${playlist.user}**`)
+      .setImage(`${playlist.thumbnail.url}`)
+      .setFooter(playlist.user.tag, playlist.user.avatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+      .setColor(color)
+    message.channel.send(embed)
+    client3.channels.cache.get("854265212499394560").send(embed)
+
+  })
+  .on("searchResult", async (message, result) => {
+    var color = db.get(`co_${message.guild.id}`);
+    if (color === null) color = cc;
+    let i = 0;
+    message.channel.send(new Discord3.MessageEmbed().setTitle(`**🎵 Please Put a Number**`).setDescription(`**${result.map(song => `${++i} - [${song.name}](${song.url}) - \`${song.formattedDuration}\``).join("\n")}**`).setColor(color).setThumbnail(message.guild.iconURL({
+      format: "png",
+      size: 4096,
+      dynamic: true
+    })).setFooter(`You Have 60s To Put a Number`, message.author.displayAvatarURL({
+      format: "png",
+      size: 4096,
+      dynamic: true
+    })).setTimestamp());
+  })
+  .on("searchCancel", (message) => message.channel.send(`**❗ Searching Has Been Stop**`))
+  .on("error", (message, e) => {
+    console.error(e)
+  })
+  .on("initQueue", queue => {
+    queue.autoplay = false;
+    queue.volume = 100;
+  });
+// Music Src
+
+client2.on("message", message => {
+  var prefix = prefix2;
+  const args = message.content.slice(prefix.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix) !== 0) return;
+  if (command === "help") {
+    const embed = new Discord2.MessageEmbed()
+      .addField("**🎵 Music Commands :**", `\`${prefix}play\n${prefix}replay\n${prefix}stop\n${prefix}skip\n${prefix}skipto\n${prefix}loop\n${prefix}volume\n${prefix}seek\n${prefix}pause\n${prefix}resume\n${prefix}shuffle\n${prefix}queue\n${prefix}np\n${prefix}lyrics\n${prefix}join\n${prefix}disconnect\n${prefix}youtube\``, true)
+      .addField("**🎧 Music Filters :**", `\`${prefix}3d\n${prefix}bassboost\n${prefix}echo\n${prefix}karaoke\n${prefix}nightcore\n${prefix}vaporwave\n${prefix}flanger\n${prefix}gate\n${prefix}haas\n${prefix}reverse\n${prefix}surround\n${prefix}mcompand\n${prefix}phaser\n${prefix}tremolo\n${prefix}earwax\``, true)
+      .setColor(color)
+      .setAuthor(client2.user.tag, client2.user.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+    message.channel.send(embed)
+  }
+})
+
+client3.on("message", message => {
+  var prefix = prefix3;
+  const args = message.content.slice(prefix.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix) !== 0) return;
+  if (command === "help") {
+    const embed = new Discord3.MessageEmbed()
+      .addField("**🎵 Music Commands :**", `\`${prefix}play\n${prefix}replay\n${prefix}stop\n${prefix}skip\n${prefix}skipto\n${prefix}loop\n${prefix}volume\n${prefix}seek\n${prefix}pause\n${prefix}resume\n${prefix}shuffle\n${prefix}queue\n${prefix}np\n${prefix}lyrics\n${prefix}join\n${prefix}disconnect\n${prefix}youtube\``, true)
+      .addField("**🎧 Music Filters :**", `\`${prefix}3d\n${prefix}bassboost\n${prefix}echo\n${prefix}karaoke\n${prefix}nightcore\n${prefix}vaporwave\n${prefix}flanger\n${prefix}gate\n${prefix}haas\n${prefix}reverse\n${prefix}surround\n${prefix}mcompand\n${prefix}phaser\n${prefix}tremolo\n${prefix}earwax\``, true)
+      .setColor(color)
+      .setAuthor(client3.user.tag, client3.user.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+    message.channel.send(embed)
+  }
+})
+
+const Discord4 = require('discord.js');
+const client4 = new Discord4.Client();
+const DisTube4 = require('distube');
+const prefix4 = '3';
+client4.on('ready', () => {
+  console.log(`${client4.user.tag} is ready`);
+  client4.user.setActivity('BanderitaX', {
+    type: 'STREAMING',
+    url: 'https://www.twitch.tv/banderitax'
+  });
+});
+// Music Data
+const distube4 = new DisTube4(client4, {
+  searchSongs: false,
+  emitNewSongOnly: true
+});
+// Music Data
+
+// Music Cmds
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'file') {
+    const att = message.attachments.first();
+    if (!att) return message.reply(`**❌ Error Please Put The Attachment**`);
+    let bed = new Discord4.MessageEmbed()
+      .setTitle('**' + att.name + '**')
+      .setURL(att.url)
+      .addField('**Played By :**', `**${message.author}**`)
+      .setFooter(
+        message.author.tag,
+        message.author.displayAvatarURL({
+          format: 'png',
+          size: 4096,
+          dynamic: true
+        })
+      )
+      .setTimestamp()
+      .setColor(color);
+    distube4.play(message, att.url);
+    message.channel.send(bed);
+    client4.channels.cache.get('854265212499394560').send(bed);
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'play') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+
+    let music = message.content
+      .split(' ')
+      .slice(1)
+      .join(' ');
+    if (!music) return message.reply(`**❌ Error Please Put The Music Name**`);
+    distube4.play(message, music);
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'stop') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      distube4.stop(message);
+      message.channel.send(
+        `**🎵 The Music Has Been Stopped And The Queue Has Been Cleared**`
+      );
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  if (message.content.toLowerCase() === prefix4 + 'skip') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      distube4.skip(message);
+      message.channel.send(`**🎵 The Music Has Been Skipped**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'repeat' || command === 'loop') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      let mode = distube4.setRepeatMode(message, parseInt(args[0]));
+      mode = mode ? (mode == 2 ? 'Repeat Queue' : 'Repeat Song') : 'OFF';
+      message.channel.send(
+        `🎵 The Repeat Mode Has Been Set To **\`${mode}\`**`
+      );
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'volume' || command === 'vol') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      const stats = `${que.volume}%`;
+      let vol = message.content.split(' ').slice(1);
+      if (!vol[0])
+        return message.reply(`**🎵 The Music Volume is \`${stats}\`**`);
+      if (parseInt(vol[0]) < 0 || parseInt(vol[0]) > 100)
+        return message.reply(
+          `**❌ Error You Can't Put Number Lower Than \`0\` Or More Than \`100\`**`
+        );
+      if (isNaN(vol[0])) return message.reply(`**❌ Error Invalid Number**`);
+      distube4.setVolume(message, vol);
+      message.channel.send(
+        `**🎵 The Music Volume Has Been Set To \`${vol[0]}%\`**`
+      );
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on("message", async message => {
+  if (message.channel.type === "dm") return
+  const args = message.content.slice(prefix4.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === "seek") {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    let que = await distube4.getQueue(message)
+    if (que) {
+      let sek = message.content.split(' ').slice(1)
+      if (!sek[0]) return message.reply(`**❌ Error Please Put a Number**`)
+      distube4.seek(message, Number(toMilliseconds(sek[0])))
+      message.channel.send(`**🎵 The Music Has Been Seeked To \`${sek[0]}\`**`)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client4.on("message", async message => {
+  if (message.channel.type === "dm") return
+  if (message.content.toLowerCase().startsWith(prefix4 + "nowplaying") || message.content.toLowerCase().startsWith(prefix4 + "np")) {
+    if (!message.member.voice.channel) return message.reply(`**❌ Error You're Not in Voice Channel**`)
+    const channel = message.member.voice.channel
+    const me = message.guild.me.voice.channel
+
+    if (me && me.id !== channel.id) return message.reply(`**❌ Error You Must Be Listening To ${me}**`)
+    const que = await distube4.getQueue(message)
+    if (que) {
+      let track = que.songs[0]
+      let time = track.duration * 1000
+      const currentTime = que.currentTime;
+      let sng = que.songs[0]
+      var embed = new Discord.MessageEmbed()
+        .setTitle("**" + sng.name + "**")
+        .setURL(sng.url)
+        .addField("**Published By :**", `**[${sng.info.videoDetails.ownerChannelName}](${sng.info.videoDetails.ownerProfileUrl})**`)
+        .addField("**Views :**", `**${sng.views}**`)
+        .addField("**Duration :**", `**[${progressbar.splitBar(time === 0 ? currentTime : time, currentTime, 10)[0]}]\n\`[${que.formattedCurrentTime}/${track.formattedDuration}]\`**`)
+        .addField("**Played By :**", `**${sng.user}**`)
+        .setImage(`${sng.thumbnail}`)
+        .setFooter(`👍 ${sng.likes} | 👎 ${sng.dislikes}`, sng.user.avatarURL({
+          format: "png",
+          size: 4096,
+          dynamic: true
+        }))
+        .setTimestamp()
+        .setColor(color)
+      message.channel.send(embed)
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`)
+      return
+    }
+  }
+})
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'pause') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      distube4.pause(message);
+      message.channel.send(`**🎵 The Music Has Been Paused**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'resume') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      distube4.resume(message);
+      message.channel.send(`**🎵 The Music Has Been Resumed**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'shuffle') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      distube4.shuffle(message);
+      message.channel.send(`**🎵 The Music Has Been Shuffled**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  let que = await distube4.getQueue(message);
+  if (!message.content.startsWith(prefix4)) return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift();
+  if (
+    [
+      `3d`,
+      `bassboost`,
+      `echo`,
+      `karaoke`,
+      `nightcore`,
+      `vaporwave`,
+      `flanger`,
+      `gate`,
+      `haas`,
+      `reverse`,
+      `surround`,
+      `mcompand`,
+      `phaser`,
+      `tremolo`,
+      `earwax`
+    ].includes(command)
+  ) {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    if (que) {
+      let filter = distube4.setFilter(message, command);
+      message.channel.send(
+        `🎵 Music Filter Has Been Set To **\`${filter || 'OFF'}\`**`
+      );
+    } else if (!que) {
+      message.channel.send(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  if (!message.content.startsWith(prefix4)) return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift();
+  if (command == 'queue') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let qu = await distube4.getQueue(message);
+    if (qu) {
+      let queue = distube4.getQueue(message);
+      message.channel.send(
+        new Discord4.MessageEmbed()
+          .setDescription(
+            `**${queue.songs
+              .map(
+                (song, id) =>
+                  `${id + 1} - [${song.name}](${song.url}) - \`${
+                  song.formattedDuration
+                  }\``
+              )
+              .join('\n')}**`
+          )
+          .setFooter(
+            message.author.tag,
+            message.author.displayAvatarURL({
+              format: 'png',
+              size: 4096,
+              dynamic: true
+            })
+          )
+          .setTitle('🎵 Queue List')
+          .setThumbnail(
+            message.guild.iconURL({
+              format: 'png',
+              size: 4096,
+              dynamic: true
+            })
+          )
+          .setTimestamp()
+          .setColor(color)
+      );
+    } else if (!qu) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  if (!message.content.startsWith(prefix4)) return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (command == 'skipto') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      let skipnum = message.content.split(' ').slice(1);
+      if (!skipnum[0])
+        return message.reply(`**❌ Error Please Put The Music Number**`);
+      distube4.jump(message, parseInt(skipnum[0])).catch(err => {
+        return message.reply(`**❌ Error Invalid Music Number**`);
+      });
+      message.channel.send(`**🎵 The Music Has Been Skipped**`);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'disconnect' || command === 'dc') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const me = message.guild.me.voice.channel;
+    const channel = message.member.voice.channel;
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening To ${me}**`);
+    if (message.guild.me.voice.channel) {
+      message.guild.me.voice.channel.leave();
+      message.react('👋');
+    }
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'join') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const me = message.guild.me.voice.channel;
+    const channel = message.member.voice.channel;
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening To ${me}**`);
+    message.member.voice.channel.join();
+    message.react('👋');
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'replay') {
+    const que = await distube4.getQueue(message);
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening To ${me}**`);
+    if (que) {
+      distube4.stop(message);
+      distube4.play(message, que.songs[0].url);
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+
+client4.on('message', message => {
+  if (message.channel.type === 'dm') return;
+  if (!message.content.startsWith(prefix4)) return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (command == 'youtube') {
+    let channel = message.member.voice.channel;
+    if (!channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    fetch(`https://discord.com/api/v8/channels/${channel.id}/invites`, {
+      method: 'POST',
+      body: JSON.stringify({
+        max_age: 86400,
+        max_uses: 0,
+        target_application_id: '755600276941176913',
+        target_type: 2,
+        temporary: false,
+        validate: null
+      }),
+      headers: {
+        Authorization: `Bot ${client4.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => res.json())
+      .then(invite => {
+        if (!invite.code)
+          return message.reply(`**❌ Error I Can't Start YouTube Together**`);
+        message.channel.send(
+          `**✅ Done Click On The Link To Start YouTube Together\nhttps://discord.com/invite/${
+          invite.code
+          }**`
+        );
+      });
+  }
+});
+
+client4.on('message', async message => {
+  if (message.channel.type === 'dm') return;
+  const args = message.content
+    .slice(prefix4.length)
+    .trim()
+    .split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix4) !== 0) return;
+  if (command === 'lyrics') {
+    if (!message.member.voice.channel)
+      return message.reply(`**❌ Error You're Not in Voice Channel**`);
+    const channel = message.member.voice.channel;
+    const me = message.guild.me.voice.channel;
+
+    if (me && me.id !== channel.id)
+      return message.reply(`**❌ Error You Must Be Listening To ${me}**`);
+    let que = await distube4.getQueue(message);
+    if (que) {
+      (async function(artist, title) {
+        let lyrics = (await lyricsFinder(artist, title)) || 'Not Found!';
+        message.channel
+          .send(
+            new Discord4.MessageEmbed()
+              .setAuthor(
+                client.user.tag,
+                client.user.displayAvatarURL({
+                  format: 'png',
+                  size: 4096,
+                  dynamic: true
+                })
+              )
+              .setTitle(`**${que.songs[0].name} Lyrics**`)
+              .setDescription(lyrics)
+              .setColor(color)
+              .setFooter(
+                'Requested By ' + message.author.tag,
+                message.author.displayAvatarURL({
+                  format: 'png',
+                  size: 4096,
+                  dynamic: true
+                })
+              )
+          )
+          .catch(error => {
+            message.channel.send(
+              `**❌ Error The Song Characters More Than 200**`
+            );
+          });
+      })(que.songs[0].name, '');
+    } else if (!que) {
+      message.reply(`**❌ Error No Music Has Been Playing**`);
+      return;
+    }
+  }
+});
+// Music Cmds
+
+// Music Src
+distube4
+  .on('playSong', async (message, queue, song) => {
+    var embed = new Discord4.MessageEmbed()
+      .setTitle('**' + song.name + '**')
+      .setURL(song.url)
+      .addField(
+        '**Published By :**',
+        `**[${song.info.videoDetails.ownerChannelName}](${
+        song.info.videoDetails.ownerProfileUrl
+        })**`
+      )
+      .addField('**Views :**', `**${song.views}**`)
+      .addField('**Duration :**', `**${song.formattedDuration}**`)
+      .addField('**Played By :**', `**${song.user}**`)
+      .setImage(`${song.thumbnail}`)
+      .setFooter(
+        `👍 ${song.likes} | 👎 ${song.dislikes}`,
+        song.user.avatarURL({
+          format: 'png',
+          size: 4096,
+          dynamic: true
+        })
+      )
+      .setTimestamp()
+      .setColor(color);
+    message.channel.send(embed);
+    client4.channels.cache.get('854265212499394560').send(embed);
+  })
+  .on('addSong', async (message, queue, song) => {
+    var embed = new Discord4.MessageEmbed()
+      .setTitle('**' + song.name + '**')
+      .setURL(song.url)
+      .addField(
+        '**Published By :**',
+        `**[${song.info.videoDetails.ownerChannelName}](${
+        song.info.videoDetails.ownerProfileUrl
+        })**`
+      )
+      .addField('**Views :**', `**${song.views}**`)
+      .addField('**Duration :**', `**${song.formattedDuration}**`)
+      .addField('**Added By :**', `**${song.user}**`)
+      .setImage(`${song.thumbnail}`)
+      .setFooter(
+        `👍 ${song.likes} | 👎 ${song.dislikes}`,
+        song.user.avatarURL({
+          format: 'png',
+          size: 4096,
+          dynamic: true
+        })
+      )
+      .setTimestamp()
+      .setColor(color);
+    message.channel.send(embed);
+    client4.channels.cache.get('854265212499394560').send(embed);
+  })
+
+  .on('playList', async (message, queue, playlist, song) => {
+    var embed = new Discord4.MessageEmbed()
+      .setTitle('**' + playlist.name + '**')
+      .setURL(playlist.url)
+      .addField('**Music Count :**', `**${playlist.songs.length}**`)
+      .addField('**Played By :**', `**${playlist.user}**`)
+      .setImage(`${playlist.thumbnail.url}`)
+      .setFooter(
+        playlist.user.tag,
+        playlist.user.avatarURL({
+          format: 'png',
+          size: 4096,
+          dynamic: true
+        })
+      )
+      .setTimestamp()
+      .setColor(color);
+    message.channel.send(embed);
+    client4.channels.cache.get('854265212499394560').send(embed);
+  })
+
+  .on('addList', async (message, queue, playlist) => {
+    var embed = new Discord4.MessageEmbed()
+      .setTitle('**' + playlist.name + '**')
+      .setURL(playlist.url)
+      .addField('**Music Count :**', `**${playlist.songs.length}**`)
+      .addField('**Added By :**', `**${playlist.user}**`)
+      .setImage(`${playlist.thumbnail.url}`)
+      .setFooter(
+        playlist.user.tag,
+        playlist.user.avatarURL({
+          format: 'png',
+          size: 4096,
+          dynamic: true
+        })
+      )
+      .setTimestamp()
+      .setColor(color);
+    message.channel.send(embed);
+    client4.channels.cache.get('854265212499394560').send(embed);
+  })
+  .on('searchResult', async (message, result) => {
+    var color = db.get(`co_${message.guild.id}`);
+    if (color === null) color = cc;
+    let i = 0;
+    message.channel.send(
+      new Discord4.MessageEmbed()
+        .setTitle(`**🎵 Please Put a Number**`)
+        .setDescription(
+          `**${result
+            .map(
+              song =>
+                `${++i} - [${song.name}](${song.url}) - \`${
+                song.formattedDuration
+                }\``
+            )
+            .join('\n')}**`
+        )
+        .setColor(color)
+        .setThumbnail(
+          message.guild.iconURL({
+            format: 'png',
+            size: 4096,
+            dynamic: true
+          })
+        )
+        .setFooter(
+          `You Have 60s To Put a Number`,
+          message.author.displayAvatarURL({
+            format: 'png',
+            size: 4096,
+            dynamic: true
+          })
+        )
+        .setTimestamp()
+    );
+  })
+  .on('searchCancel', message =>
+    message.channel.send(`**❗ Searching Has Been Stop**`)
+  )
+  .on('error', (message, e) => {
+    console.error(e);
+  })
+  .on('initQueue', queue => {
+    queue.autoplay = false;
+    queue.volume = 100;
+  });
+
+client4.on("message", message => {
+  var prefix = prefix4;
+  const args = message.content.slice(prefix.length).trim().split(/ +/g);
+  const command = args.shift().toLowerCase();
+  if (message.content.indexOf(prefix) !== 0) return;
+  if (command === "help") {
+    const embed = new Discord3.MessageEmbed()
+      .addField("**🎵 Music Commands :**", `\`${prefix}play\n${prefix}replay\n${prefix}stop\n${prefix}skip\n${prefix}skipto\n${prefix}loop\n${prefix}volume\n${prefix}seek\n${prefix}pause\n${prefix}resume\n${prefix}shuffle\n${prefix}queue\n${prefix}np\n${prefix}lyrics\n${prefix}join\n${prefix}disconnect\n${prefix}youtube\``, true)
+      .addField("**🎧 Music Filters :**", `\`${prefix}3d\n${prefix}bassboost\n${prefix}echo\n${prefix}karaoke\n${prefix}nightcore\n${prefix}vaporwave\n${prefix}flanger\n${prefix}gate\n${prefix}haas\n${prefix}reverse\n${prefix}surround\n${prefix}mcompand\n${prefix}phaser\n${prefix}tremolo\n${prefix}earwax\``, true)
+      .setColor(color)
+      .setAuthor(client3.user.tag, client3.user.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setFooter(message.author.tag, message.author.displayAvatarURL({
+        format: "png",
+        size: 4096,
+        dynamic: true
+      }))
+      .setTimestamp()
+    message.channel.send(embed)
+  }
+})
+
+client4.login(process.env.token4);
+client3.login(process.env.token3);
+client2.login(process.env.token2);
 client.login(process.env.token);
